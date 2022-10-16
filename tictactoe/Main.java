@@ -1,255 +1,83 @@
 package tictactoe;
-import java.util.Arrays;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
-class OutBoundsMoveException extends Exception {
-}
-
-class OccupiedInputCoordinateException extends Exception {
-}
-
-class inputCoordinates {
-    public final int x;
-    public final int y;
-
-    inputCoordinates(int x, int y) throws OutBoundsMoveException {
-        if (x < 0 || x > 2 || y < 0 || y > 2) {
-            throw new OutBoundsMoveException();
-        }
-        this.x = x;
-        this.y = y;
-    }
-}
-
 public class Main {
-    public static String[][] getRows(String[] gameState) {
-        String[][] rows = new String[3][3];
-        for (int i = 0; i < 3; i++) {
-            System.arraycopy(gameState, i * 3, rows[i], 0, 3);
-        }
-        return rows;
-    }
 
-    public static String[][] getCols(String[] gameState) {
-        String[][] cols = new String[3][3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                cols[i][j] = gameState[i + 3 * j];
-            }
-        }
-        return cols;
-    }
-
-    public static boolean isLineOf(String player, String[] line) {
-        String[] expectedLine = new String[]{player, player, player};
-        return Arrays.equals(line, expectedLine);
-    }
-
-    public static boolean isLinesOf(String player, String[][] lines) {
-        for (String[] line : lines) {
-            if (isLineOf(player, line)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isRowOf(String player, String[] gameState) {
-        return isLinesOf(player, getRows(gameState));
-    }
-
-    public static boolean isColOf(String player, String[] gameState) {
-        return isLinesOf(player, getCols(gameState));
-    }
-
-    public static boolean isRowOfXs(String[] gameState) {
-        return isRowOf("X", gameState);
-    }
-
-    public static boolean isRowOfOs(String[] gameState) {
-        return isRowOf("O", gameState);
-    }
-
-    public static boolean isColOfXs(String[] gameState) {
-        return isColOf("X", gameState);
-    }
-
-    public static boolean isColOfOs(String[] gameState) {
-        return isColOf("O", gameState);
-    }
-
-    public static String[] getRightDiagonal(String[] gameState) {
-        return new String[]{gameState[0], gameState[4], gameState[8]};
-    }
-
-    public static String[] getLeftDiagonal(String[] gameState) {
-        return new String[]{gameState[2], gameState[4], gameState[6]};
-    }
-
-    public static boolean isRightDiagonalOf(String player, String[] gameState) {
-        return isLineOf(player, getRightDiagonal(gameState));
-    }
-
-    public static boolean isLeftDiagonalOf(String player, String[] gameState) {
-        return isLineOf(player, getLeftDiagonal(gameState));
-    }
-
-    public static boolean isRightDiagonalOfXs(String[] gameState) {
-        return isRightDiagonalOf("X", gameState);
-    }
-
-    public static boolean isRightDiagonalOfOs(String[] gameState) {
-        return isRightDiagonalOf("O", gameState);
-    }
-
-    public static boolean isLeftDiagonalOfXs(String[] gameState) {
-        return isLeftDiagonalOf("X", gameState);
-    }
-
-    public static boolean isLeftDiagonalOfOs(String[] gameState) {
-        return isLeftDiagonalOf("O", gameState);
-    }
-
-    public static boolean isDiagonalOfXs(String[] gameState) {
-        return isRightDiagonalOfXs(gameState) || isLeftDiagonalOfXs(gameState);
-    }
-
-    public static boolean isDiagonalOfOs(String[] gameState) {
-        return isRightDiagonalOfOs(gameState) || isLeftDiagonalOfOs(gameState);
-    }
-
-    public static boolean isXWins(String[] gameState) {
-        return isRowOfXs(gameState) || isColOfXs(gameState) || isDiagonalOfXs(gameState);
-    }
-
-    public static boolean isOWins(String[] gameState) {
-        return isRowOfOs(gameState) || isColOfOs(gameState) || isDiagonalOfOs(gameState);
-    }
-
-    public static boolean movesAvailable(String[] gameState) {
-        return Arrays.asList(gameState).contains(" ");
-    }
-
-    public static boolean hasNoWinner(String[] gameState) {
-        return !isXWins(gameState) && !isOWins(gameState);
-    }
-
-    public static int count(String player, String[] gameState) {
-        int count = 0;
-        for (String move : gameState) {
-            if (move.equals(player)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public static boolean wrongNumberOfMoves(String[] gameState) {
-        int movesDiff = count("X", gameState) - count("O", gameState);
-        return movesDiff < -1 || movesDiff > 1;
-    }
-
-    public static boolean isDraw(String[] gameState) {
-        return hasNoWinner(gameState) && !movesAvailable(gameState);
-    }
-
-    public static boolean isNotFinished(String[] gameState) {
-        return hasNoWinner(gameState) && movesAvailable(gameState);
-    }
-
-    public static boolean isImpossible(String[] gameState) {
-        return isXWins(gameState) && isOWins(gameState) || wrongNumberOfMoves(gameState);
-    }
-
-    public static void printBoard(String[] gameState) {
-        System.out.println("---------");
-        for (int i = 0; i < 3; i++) {
-            System.out.print("| ");
-            for (int j = 0; j < 3; j++) {
-                System.out.printf("%s ", gameState[3 * i + j]);
-            }
-            System.out.println("|");
-        }
-        System.out.println("---------");
-    }
-
-    public static String getStatus(String[] gameState) {
-        String status = "Unknown game state";
-
-        if (isImpossible(gameState)) {
-            status = "Impossible";
-        } else if (isNotFinished(gameState)) {
-            status = "Game not finished";
-        } else if (isXWins(gameState)) {
-            status = "X wins";
-        } else if (isOWins(gameState)) {
-            status = "O wins";
-        } else if (isDraw(gameState)) {
-            status = "Draw";
-        }
-
-        return status;
-    }
-
-    public static inputCoordinates readUserMove() throws OutBoundsMoveException {
-        Scanner scanner = new Scanner(System.in);
-        int y = scanner.nextInt() - 1;
-        int x = scanner.nextInt() - 1;
-        return new inputCoordinates(x, y);
-    }
-
-    public static void makeUserMove(inputCoordinates coordinates, String[] gameState, String player)
-            throws OccupiedInputCoordinateException {
-        String target = gameState[coordinates.y * 3 + coordinates.x];
-
-        if (target.equals("X") || target.equals("O")) {
-            throw new OccupiedInputCoordinateException();
-        }
-
-        gameState[coordinates.y * 3 + coordinates.x] = player;
-    }
-
-    public static void processUserMove(String[] gameState, String player) {
-        try {
-            System.out.print("Enter the coordinates: ");
-            inputCoordinates coordinates = readUserMove();
-            makeUserMove(coordinates, gameState, player);
-        } catch (OutBoundsMoveException e) {
-            System.out.println("inputCoordinates should be from 1 to 3!");
-            processUserMove(gameState, player);
-        } catch (OccupiedInputCoordinateException e) {
-            System.out.println("This cell is occupied! Choose another one!");
-            processUserMove(gameState, player);
-        } catch (InputMismatchException e) {
-            System.out.println("You should enter numbers!");
-            processUserMove(gameState, player);
-        }
-    }
-
-    public static String[] emptyBoard() {
-        String[] board = new String[9];
-        Arrays.fill(board, " ");
-        return board;
-    }
-
-    public static void play() {
-        String[] gameState = emptyBoard();
-        String gameStatus = getStatus(gameState);
-        String nextPlayer = "X";
-
-        while (gameStatus.equals("Game not finished")) {
-            printBoard(gameState);
-            processUserMove(gameState, nextPlayer);
-            gameStatus = getStatus(gameState);
-            nextPlayer = nextPlayer.equals("X") ? "O" : "X";
-        }
-
-        printBoard(gameState);
-        System.out.println(gameStatus);
-    }
+    public static final Scanner SCANNER = new Scanner(System.in);
+    public static final char[] SYMBOL = {' ', 'O', 'X'};
+    public static final String[] RESULT = {"Game not finished", "Draw", "X wins", "O wins", "Impossible"};
 
     public static void main(String[] args) {
-        play();
+        int resultId;
+        int player = 1;
+        int[][] grid = {
+                {0, 0, 0}, 
+                {0, 0, 0}, 
+                {0, 0, 0}
+        };
+        
+        System.out.println(getGrid(grid));
+        do {
+            player = player == 1 ? 2 : 1;
+            while (!makeMove(grid, player));
+            System.out.println(getGrid(grid));
+            resultId = getState(grid);
+        } while (1 > resultId);
+        System.out.println(RESULT[resultId]);
+    }
+
+    // Reads a string, checks usability, converts it to coordinates and writes a symbol into the grid
+    public static boolean makeMove(int[][] grid, int symbId) {
+        System.out.print("Enter the coordinates: ");
+        String input = SCANNER.nextLine().trim();
+        if(!input.matches("^[0-9]+\\s*[\\s,]\\s*[0-9]+$")) {
+            System.out.println("You should enter numbers!");
+            return false;
+        }
+        String[] numbers = input.split("\\s*[\\s,]\\s*");
+        int row = Integer.parseInt(numbers[0].trim()) - 1;
+        int col = Integer.parseInt(numbers[1].trim()) - 1;
+        if(row < 0 || row > 2 || col < 0 || col > 2) {
+            System.out.println("Coordinates should be from 1 to 3!");
+            return false;
+        }
+        if(grid[row][col] != 0) {
+            System.out.println("This cell is occupied! Choose another one!");
+            return false;
+        }
+        grid[row][col] = symbId;
+        return true;
+    }
+
+    // Returns a printable grid
+    public static String getGrid(int[][] grid) {
+        StringBuilder bString = new StringBuilder("---------\n");
+        for(int[] cells : grid) {
+            bString.append(String.format("| %c %c %c |%n", SYMBOL[cells[0]], SYMBOL[cells[1]], SYMBOL[cells[2]]));
+        }
+        return bString.append("---------").toString();
+    }
+
+    // Returns the current state of the grid
+    public static int getState(int[][] grid) {
+        int xTotal = 0;
+        int oTotal = 0;
+        boolean xWins = false;
+        boolean oWins = false;
+        int xh, xv, xd1, xd2, oh, ov, od1, od2;
+        xd1 = xd2 = od1 = od2 = 0;
+        for(int a= 0; a < 3; a++) {
+            xTotal += xh = grid[a][0] / 2 + grid[a][1] / 2 + grid[a][2] / 2;
+            xv = grid[0][a] / 2 + grid[1][a] / 2 + grid[2][a] / 2;
+            xd1 += grid[a][a] / 2;
+            xd2 += grid[a][2 - a] / 2;
+            oTotal += oh = grid[a][0] % 2 + grid[a][1] % 2 + grid[a][2] % 2;
+            ov = grid[0][a] % 2 + grid[1][a] % 2 + grid[2][a] % 2;
+            od1 += grid[a][a] % 2;
+            od2 += grid[a][2 - a] % 2;
+            xWins |= xh == 3 || xv == 3 || xd1 == 3 || xd2 == 3;
+            oWins |= oh == 3 || ov == 3 || od1 == 3 || od2 == 3;
+        }
+        return Math.abs(xTotal - oTotal) > 1 || xWins && oWins ? 4 : oWins ? 3 : xWins ? 2 : xTotal + oTotal == 9 ? 1 : 0;
     }
 }
