@@ -2,82 +2,220 @@ package tictactoe;
 import java.util.Scanner;
 
 public class Main {
+    public static final int GRID = 3;
 
-    public static final Scanner SCANNER = new Scanner(System.in);
-    public static final char[] SYMBOL = {' ', 'O', 'X'};
-    public static final String[] RESULT = {"Game not finished", "Draw", "X wins", "O wins", "Impossible"};
-
-    public static void main(String[] args) {
-        int resultId;
-        int player = 1;
-        int[][] grid = {
-                {0, 0, 0}, 
-                {0, 0, 0}, 
-                {0, 0, 0}
-        };
-        
-        System.out.println(getGrid(grid));
-        do {
-            player = player == 1 ? 2 : 1;
-            while (!makeMove(grid, player));
-            System.out.println(getGrid(grid));
-            resultId = getState(grid);
-        } while (1 > resultId);
-        System.out.println(RESULT[resultId]);
+    public static char[][] createTwoDimArray(char[] input) {
+        char[][] twoDimArray = new char[GRID][GRID];
+        int row = 0;
+        for (int i = 0; i < GRID * GRID; i += 3) {
+            for (int j = 0; j < GRID; j++) {
+                twoDimArray[row][j] = input[i + j];
+            }
+            row++;
+        }
+        return twoDimArray;
     }
 
-    // Reads a string, checks usability, converts it to coordinates and writes a symbol into the grid
-    public static boolean makeMove(int[][] grid, int symbId) {
-        System.out.print("Enter the coordinates: ");
-        String input = SCANNER.nextLine().trim();
-        if(!input.matches("^[0-9]+\\s*[\\s,]\\s*[0-9]+$")) {
-            System.out.println("You should enter numbers!");
-            return false;
+    public static void print(char[][] twoDimArray) {
+        System.out.println("---------");
+        for (int i = 0; i < GRID; i++) {
+            System.out.print("| ");
+            for (int j = 0; j < GRID; j++) {
+                System.out.printf("%c ", twoDimArray[i][j]);
+            }
+            System.out.println("|");
         }
-        String[] numbers = input.split("\\s*[\\s,]\\s*");
-        int row = Integer.parseInt(numbers[0].trim()) - 1;
-        int col = Integer.parseInt(numbers[1].trim()) - 1;
-        if(row < 0 || row > 2 || col < 0 || col > 2) {
+        System.out.println("---------");
+    }
+
+    public static void turn(char[][] twoDimArray, String i, String j) {
+        int noOfXs = 0;
+        int noOfOs = 0;
+        int rowI = Integer.parseInt(i) - 1;
+        int colL = Integer.parseInt(j) - 1;
+
+        for (int ii = 0; ii < GRID; ii++) {
+            for (int jj = 0; jj < GRID; jj++) {
+                if (twoDimArray[ii][jj] == 'X') {
+                    noOfXs++;
+                } else if (twoDimArray[ii][jj] == 'O') {
+                    noOfOs++;
+                }
+            }
+        }
+
+        boolean xTurn = noOfXs <= noOfOs;
+        if (xTurn) {
+            for (int ii = 0; ii < GRID; ii++) {
+                for (int jj = 0; jj < GRID; jj++) {
+                    twoDimArray[rowI][colL] = 'X';
+                }
+            }
+            noOfXs++;
+        } else {
+            for (int ii = 0; ii < GRID; ii++) {
+                for (int jj = 0; jj < GRID; jj++) {
+                    twoDimArray[rowI][colL] = 'O';
+
+                }
+            }
+            noOfOs++;
+        }
+
+    }
+
+    public static boolean coordinatesCheck(char[][] twoDimArray, String i, String j) {
+
+        int rowI = Integer.parseInt(i) - 1;
+        int colL = Integer.parseInt(j) - 1;
+        if ((rowI < 0 || rowI > 2) || (colL < 0 || colL > 2)) {
             System.out.println("Coordinates should be from 1 to 3!");
             return false;
         }
-        if(grid[row][col] != 0) {
+        if (twoDimArray[rowI][colL] != '_') {
             System.out.println("This cell is occupied! Choose another one!");
             return false;
         }
-        grid[row][col] = symbId;
+
+        turn(twoDimArray, i, j);
+
+        print(twoDimArray);
         return true;
+
     }
 
-    // Returns a printable grid
-    public static String getGrid(int[][] grid) {
-        StringBuilder bString = new StringBuilder("---------\n");
-        for(int[] cells : grid) {
-            bString.append(String.format("| %c %c %c |%n", SYMBOL[cells[0]], SYMBOL[cells[1]], SYMBOL[cells[2]]));
+    public static boolean gridCheck(char[][] twoDimArray) {
+        int xCount = 0;
+        int oCount = 0;
+        int emptyCount = 0;
+        boolean xWin = false;
+        boolean oWin = false;
+        int xThree = 0;
+        int oThree = 0;
+
+        for (int i = 0; i < GRID; i++) {
+            for (int j = 0; j < GRID; j++) {
+                if (twoDimArray[i][j] == 'X') {
+                    xCount++;
+                } else if (twoDimArray[i][j] == 'O') {
+                    oCount++;
+                } else {
+                    emptyCount++;
+                }
+            }
+            if (i == 0) {
+                if (twoDimArray[i][GRID - 3] == 'X' && twoDimArray[i + 1][GRID - 3] == 'X' && twoDimArray[i + 2][GRID - 3] == 'X') {
+                    xWin = true;
+                    xThree++;
+                } else if (twoDimArray[i][GRID - 3] == 'O' && twoDimArray[i + 1][GRID - 3] == 'O' && twoDimArray[i + 2][GRID - 3] == 'O') {
+                    oWin = true;
+                    oThree++;
+                }
+                if (twoDimArray[i][GRID - 2] == 'X' && twoDimArray[i + 1][GRID - 2] == 'X' && twoDimArray[i + 2][GRID - 2] == 'X') {
+                    xWin = true;
+                    xThree += 1;
+                } else if (twoDimArray[i][GRID - 2] == 'O' && twoDimArray[i + 1][GRID - 2] == 'O' && twoDimArray[i + 2][GRID - 2] == 'O') {
+                    oWin = true;
+                    oThree++;
+                }
+                if (twoDimArray[i][GRID - 1] == 'X' && twoDimArray[i + 1][GRID - 1] == 'X' && twoDimArray[i + 2][GRID - 1] == 'X') {
+                    xWin = true;
+                    xThree += 1;
+                } else if (twoDimArray[i][GRID - 1] == 'O' && twoDimArray[i + 1][GRID - 1] == 'O' && twoDimArray[i + 2][GRID - 1] == 'O') {
+                    oWin = true;
+                    oThree++;
+                }
+                if (twoDimArray[i][GRID - 3] == 'X' && twoDimArray[i][GRID - 2] == 'X' && twoDimArray[i][GRID - 1] == 'X') {
+                    xWin = true;
+                    xThree += 1;
+                } else if (twoDimArray[i][GRID - 3] == 'O' && twoDimArray[i][GRID - 2] == 'O' && twoDimArray[i][GRID - 1] == 'O') {
+                    oWin = true;
+                    oThree++;
+                }
+                if (twoDimArray[i][GRID - 3] == 'X' && twoDimArray[i + 1][GRID - 2] == 'X' && twoDimArray[i + 2][GRID - 1] == 'X') {
+                    xWin = true;
+                    xThree += 1;
+                } else if (twoDimArray[i][GRID - 3] == 'O' && twoDimArray[i + 1][GRID - 2] == 'O' && twoDimArray[i + 2][GRID - 1] == 'O') {
+                    oWin = true;
+                    oThree++;
+                }
+                if (twoDimArray[i][GRID - 1] == 'X' && twoDimArray[i + 1][GRID - 2] == 'X' && twoDimArray[i + 2][GRID - 3] == 'X') {
+                    xWin = true;
+                    xThree += 1;
+                } else if (twoDimArray[i][GRID - 1] == 'O' && twoDimArray[i + 1][GRID - 2] == 'O' && twoDimArray[i + 2][GRID - 3] == 'O') {
+                    oWin = true;
+                    oThree++;
+                }
+            }
+            if (i == 1) {
+                if (twoDimArray[i][GRID - 3] == 'X' && twoDimArray[i][GRID - 2] == 'X' && twoDimArray[i][GRID - 1] == 'X') {
+                    xWin = true;
+                    xThree++;
+                } else if (twoDimArray[i][GRID - 3] == 'O' && twoDimArray[i][GRID - 2] == 'O' && twoDimArray[i][GRID - 1] == 'O') {
+                    oWin = true;
+                    oThree++;
+                }
+            }
+            if (i == 2) {
+                if (twoDimArray[i][GRID - 3] == 'X' && twoDimArray[i][GRID - 2] == 'X' && twoDimArray[i][GRID - 1] == 'X') {
+                    xWin = true;
+                    xThree++;
+                } else if (twoDimArray[i][GRID - 3] == 'O' && twoDimArray[i][GRID - 2] == 'O' && twoDimArray[i][GRID - 1] == 'O') {
+                    oWin = true;
+                    oThree++;
+                }
+            }
         }
-        return bString.append("---------").toString();
+
+        if (!xWin && !oWin && emptyCount == 0) {
+            System.out.println("Draw");
+            return true;
+        } else if (xWin) {
+            System.out.println("X wins");
+            return true;
+        } else if (oWin) {
+            System.out.println("O wins");
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
-    // Returns the current state of the grid
-    public static int getState(int[][] grid) {
-        int xTotal = 0;
-        int oTotal = 0;
-        boolean xWins = false;
-        boolean oWins = false;
-        int xh, xv, xd1, xd2, oh, ov, od1, od2;
-        xd1 = xd2 = od1 = od2 = 0;
-        for(int a= 0; a < 3; a++) {
-            xTotal += xh = grid[a][0] / 2 + grid[a][1] / 2 + grid[a][2] / 2;
-            xv = grid[0][a] / 2 + grid[1][a] / 2 + grid[2][a] / 2;
-            xd1 += grid[a][a] / 2;
-            xd2 += grid[a][2 - a] / 2;
-            oTotal += oh = grid[a][0] % 2 + grid[a][1] % 2 + grid[a][2] % 2;
-            ov = grid[0][a] % 2 + grid[1][a] % 2 + grid[2][a] % 2;
-            od1 += grid[a][a] % 2;
-            od2 += grid[a][2 - a] % 2;
-            xWins |= xh == 3 || xv == 3 || xd1 == 3 || xd2 == 3;
-            oWins |= oh == 3 || ov == 3 || od1 == 3 || od2 == 3;
+    public static void main(String[] args) {
+        // write your code here
+        Scanner scanner = new Scanner(System.in);
+        String line = "_________";
+        char[] array = line.toCharArray();
+        char[][] twoDimArray = createTwoDimArray(array);
+        print(twoDimArray);
+
+        System.out.println("Please, Enter Coordinates");
+
+        boolean result = false;
+        boolean isNumber;
+
+        String i = null;
+        String j = null;
+
+
+        while (!result) {
+            boolean coordinatesValid = false;
+            while (!coordinatesValid) {
+                do {
+                    if (scanner.hasNextInt() || scanner.hasNextInt()) {
+                        i = scanner.next();
+                        j = scanner.next();
+                        isNumber = true;
+                    } else {
+                        System.out.println("You should enter numbers!");
+                        isNumber = false;
+                        scanner.next();
+                    }
+                } while (!isNumber);
+                coordinatesValid = coordinatesCheck(twoDimArray, i, j);
+            }
+            result = gridCheck(twoDimArray);
         }
-        return Math.abs(xTotal - oTotal) > 1 || xWins && oWins ? 4 : oWins ? 3 : xWins ? 2 : xTotal + oTotal == 9 ? 1 : 0;
     }
 }
